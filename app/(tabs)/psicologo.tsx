@@ -19,8 +19,8 @@ interface Message {
 
 let conversationHistory: Message[] = [];
 
-// URL del backend
-const API_URL = 'https://mentali-backend.onrender.com/chat';
+// URL del backend - Usar Vercel API
+const API_URL = 'https://mentali-ai.vercel.app/api/chat';
 
 // Función para llamar a la IA con Groq
 async function getAIResponse(userMessage: string, apiKey: string | null): Promise<string> {
