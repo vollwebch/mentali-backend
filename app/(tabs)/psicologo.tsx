@@ -5,10 +5,9 @@ import { useTheme } from '../../ThemeContext';
 import { Colors } from '../../constants/Colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 
 // =====================================================
-// IA PSICÓLOGO CON LÓGICA CONTEXTUAL
+// IA PSICÓLOGO REAL - z-ai-web-dev-sdk (GRATUITA)
 // =====================================================
 
 interface Message {
@@ -18,177 +17,81 @@ interface Message {
 
 let conversationHistory: Message[] = [];
 
-// Analizar intención del mensaje
-function analyzeIntent(message: string): { intent: string; emotion: string; context: string } {
-  const text = message.toLowerCase().trim();
-  
-  // Detectar si pregunta por el bot
-  const askingAboutBot = text.match(/\by\s*t[uú]|\by\s*a\s*t[ií]|c[oó]mo est[aá]s tu|t[uú] c[oó]mo est[aá]s|qu[ié]e[eé]n eres|qu[eé] eres/);
-  
-  // Detectar emociones
-  let emotion = 'neutral';
-  if (text.match(/triste|deprimido|llorar|llorando|melancol/)) emotion = 'tristeza';
-  else if (text.match(/ansioso|ansiedad|nervioso|preocupado|estresado|estr[eé]s/)) emotion = 'ansiedad';
-  else if (text.match(/solo|sol[a]|vac[ií]o|sin alguien|nadie/)) emotion = 'soledad';
-  else if (text.match(/enfadado|enojado|molesto|irritado|furioso|ira/)) emotion = 'ira';
-  else if (text.match(/feliz|alegre|contento|genial|b[ié]en|perfecto/)) emotion = 'alegria';
-  else if (text.match(/cansado|agotado|sin energ[ií]a|fatiga/)) emotion = 'agotamiento';
-  else if (text.match(/miedo|asustado|terror|p[aá]nico/)) emotion = 'miedo';
-  else if (text.match(/decepcionado|desilusi[oó]n|frustrado/)) emotion = 'frustracion';
-  
-  // Detectar intención
-  let intent = 'desconocido';
-  if (askingAboutBot) intent = 'pregunta_bot';
-  else if (text.match(/^(hola|hey|hi|hello|buenos|buenas)/)) intent = 'saludo';
-  else if (text.match(/gracias|te agradezco|muchas gracias/)) intent = 'agradecimiento';
-  else if (text.match(/^no\s*s[eé]|no s[eé]$/)) intent = 'indeciso';
-  else if (text.match(/^(si|s[ií]|claro|exacto|ok|vale)$/)) intent = 'afirmacion';
-  else if (text.match(/^(no|nop|nope)$/)) intent = 'negacion';
-  else if (text.match(/suicidar|matarme|morir|acabar con|no quiero vivir/)) intent = 'crisis';
-  else if (text.match(/ayuda|necesito|apoyo/)) intent = 'solicitud_ayuda';
-  else if (text.match(/novio|novia|pareja|relaci[oó]n/)) intent = 'problema_relacion';
-  else if (text.match(/trabajo|jefe|empleo/)) intent = 'problema_trabajo';
-  else if (text.match(/familia|padre|madre|hermano/)) intent = 'problema_familia';
-  else if (text.length < 5) intent = 'mensaje_corto';
-  else if (text.length > 0) intent = 'expresion';
-  
-  // Contexto basado en mensaje anterior
-  const lastBotMsg = conversationHistory.filter(m => m.role === 'assistant').pop()?.content || '';
-  let context = 'inicio';
-  if (lastBotMsg.includes('¿Cómo te sientes')) context = 'pregunta_emocion';
-  else if (lastBotMsg.includes('¿Qué')) context = 'pregunta_abierta';
-  else if (lastBotMsg.includes('¿Cómo ha')) context = 'pregunta_dia';
-  else if (lastBotMsg.includes('ejercicio')) context = 'sugerencia_ejercicio';
-  
-  return { intent, emotion, context };
-}
+// Sistema de prompt para la IA
+const SYSTEM_PROMPT = `Eres Mentali, un psicólogo virtual cálido y profesional.
 
-// Generar respuesta inteligente basada en contexto
-function generateResponse(message: string): string {
-  const { intent, emotion, context } = analyzeIntent(message);
-  const text = message.toLowerCase().trim();
-  
-  // CRISIS - SIEMPRE PRIORIDAD
-  if (intent === 'crisis') {
-    return '🆘 Tu vida importa mucho. Por favor, contacta ayuda ahora:\n\n🇪🇸 España: 024\n🇲🇽 México: 800-290-0024\n🇦🇷 Argentina: 135\n🇨🇴 Colombia: 106\n\nNo estás solo/a. Estoy aquí contigo. 💙';
-  }
-  
-  // PREGUNTA POR EL BOT - RESPUESTA COHERENTE
-  if (intent === 'pregunta_bot') {
-    if (text.includes('quien') || text.includes('qué')) {
-      return 'Soy Mentali, un psicólogo virtual creado para escucharte y apoyarte. 💙 ¿Cómo te sientes hoy?';
-    }
-    return 'Como psicólogo virtual no tengo emociones propias, pero me importa mucho lo que sientes. 💙 Cuéntame, ¿cómo está tu día?';
-  }
-  
-  // SALUDO
-  if (intent === 'saludo') {
-    return '¡Hola! 👋 Soy Mentali, tu psicólogo virtual. Estoy aquí para escucharte sin juicios. ¿Cómo te sientes hoy?';
-  }
-  
-  // AGRADECIMIENTO
-  if (intent === 'agradecimiento') {
-    return 'Es un honor poder acompañarte. 💙 ¿Hay algo más que te gustaría compartir?';
-  }
-  
-  // INDECISO
-  if (intent === 'indeciso') {
-    if (context === 'pregunta_emocion') {
-      return 'Está bien, a veces es difícil ponerle nombre a lo que sentimos. 🌿 ¿Tu día ha sido bueno, malo, o algo intermedio?';
-    }
-    if (context === 'pregunta_dia') {
-      return 'No te preocupes. A veces los días son simplemente días. 🌿 ¿Hay algo pequeño que te gustaría contar?';
-    }
-    return 'Está bien, no tienes que tener todo claro ahora. 🌿 Tómate tu tiempo. ¿Hay algo en tu mente?';
-  }
-  
-  // AFIRMACIÓN
-  if (intent === 'afirmacion') {
-    if (context === 'pregunta_emocion' || context === 'pregunta_abierta') {
-      return 'Me alegra que puedas compartir esto. 💙 ¿Qué más hay en tu corazón?';
-    }
-    return 'Entiendo. 💙 ¿Te gustaría contarme más sobre eso?';
-  }
-  
-  // NEGACIÓN
-  if (intent === 'negacion') {
-    return 'Está bien. 🌿 Aquí estoy si necesitas hablar de algo. ¿Hay algo en lo que pueda ayudarte?';
-  }
-  
-  // EMOCIONES - RESPUESTAS EMPÁTICAS
-  if (emotion === 'tristeza') {
-    return 'Siento que estés pasando por este momento. 💙 Tus sentimientos son completamente válidos. ¿Qué ha despertado esta tristeza en ti?';
-  }
-  if (emotion === 'ansiedad') {
-    return 'Entiendo que la ansiedad puede sentirse abrumadora. 💙 Respira profundo. ¿Qué está generando esta inquietud en ti?';
-  }
-  if (emotion === 'soledad') {
-    return 'Sentirse solo puede ser muy doloroso. 💙 Quiero que sepas que estoy aquí contigo ahora mismo. ¿Hace cuánto te sientes así?';
-  }
-  if (emotion === 'ira') {
-    return 'La ira es una emoción válida y a veces necesaria. 💙 ¿Qué fue lo que provocó estos sentimientos en ti?';
-  }
-  if (emotion === 'alegria') {
-    return '¡Qué bueno escuchar eso! 💜 Las emociones positivas también merecen ser celebradas. ¿Qué está trayendo esta alegría a tu vida?';
-  }
-  if (emotion === 'agotamiento') {
-    return 'El agotamiento puede ser físico, emocional o ambos. 💙 ¿Has estado descansando lo suficiente? ¿O hay algo que te preocupa?';
-  }
-  if (emotion === 'miedo') {
-    return 'El miedo es una respuesta natural, pero puede paralizarnos. 💙 ¿Qué es lo que te asusta? A veces hablarlo ayuda a que pierda poder.';
-  }
-  if (emotion === 'frustracion') {
-    return 'La frustración surge cuando las expectativas no coinciden con la realidad. 💙 ¿Qué esperabas que sucediera?';
-  }
-  
-  // PROBLEMAS ESPECÍFICOS
-  if (intent === 'problema_relacion') {
-    return 'Las relaciones pueden ser fuente de gran alegría pero también de dolor. 💙 ¿Qué está pasando en tu relación?';
-  }
-  if (intent === 'problema_trabajo') {
-    return 'El trabajo ocupa gran parte de nuestra vida y puede generar mucho estrés. 💙 ¿Qué situación estás enfrentando?';
-  }
-  if (intent === 'problema_familia') {
-    return 'La familia es importante pero las dinámicas pueden ser complejas. 💙 ¿Qué está sucediendo con tu familia?';
-  }
-  if (intent === 'solicitud_ayuda') {
-    return 'Estoy aquí para ti. 💙 Cuéntame qué necesitas, te escucho con atención.';
-  }
-  
-  // MENSAJE CORTO
-  if (intent === 'mensaje_corto') {
-    return 'Te escucho. 💙 ¿Podrías contarme un poco más?';
-  }
-  
-  // RESPUESTA POR DEFECTO INTELIGENTE
-  const lastBotMsg = conversationHistory.filter(m => m.role === 'assistant').pop()?.content || '';
-  
-  // Si el usuario responde a una pregunta específica
-  if (context === 'pregunta_emocion') {
-    return 'Gracias por compartir eso conmigo. 💙 ¿Puedes profundizar un poco más en cómo te hace sentir?';
-  }
-  if (context === 'sugerencia_ejercicio') {
-    return '¿Te gustaría que probemos algún ejercicio de respiración o mindfulness? 🧘';
-  }
-  
-  // Default inteligente
-  return 'Te escucho con atención. 💙 Cuéntame más sobre lo que estás sintiendo o pensando.';
-}
+REGLAS IMPORTANTES:
+1. Si preguntan "¿y tú?", "y tu?", "¿y a ti?" - responde que como IA no tienes emociones pero estás para escucharles.
+2. NUNCA digas "¡Me alegra!" cuando te pregunten cómo estás - es incorrecto.
+3. Siempre valida la emoción del usuario ANTES de dar consejos.
+4. Responde en español, sé empático, máximo 60 palabras.
+5. Si detectas crisis (suicidio, autolesión), da estos números:
+   España: 024, México: 800-290-0024, Argentina: 135, Colombia: 106
 
-// Función principal para obtener respuesta
+Sé natural, cálido y profesional. No uses listas, habla naturalmente.`;
+
+// Función para llamar a la IA REAL
 async function getAIResponse(userMessage: string): Promise<string> {
   conversationHistory.push({ role: 'user', content: userMessage });
   
-  const response = generateResponse(userMessage);
+  try {
+    // @ts-ignore
+    const ZAI = (await import('z-ai-web-dev-sdk')).default;
+    const zai = await ZAI.create();
+    
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...conversationHistory.slice(-10).map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+    ];
+    
+    const completion = await zai.chat.completions.create({
+      messages,
+      thinking: { type: 'disabled' }
+    });
+    
+    const response = completion.choices?.[0]?.message?.content || 
+      'Lo siento, no pude procesar eso. ¿Podrías repetir?';
+    
+    conversationHistory.push({ role: 'assistant', content: response });
+    return response;
+    
+  } catch (error: any) {
+    console.log('Error IA:', error.message);
+    
+    // Fallback inteligente si la IA falla
+    const fallback = getFallbackResponse(userMessage);
+    conversationHistory.push({ role: 'assistant', content: fallback });
+    return fallback;
+  }
+}
+
+// Fallback cuando la IA no está disponible
+function getFallbackResponse(message: string): string {
+  const t = message.toLowerCase().trim();
   
-  conversationHistory.push({ role: 'assistant', content: response });
-  
-  // Mantener solo los últimos 20 mensajes
-  if (conversationHistory.length > 20) {
-    conversationHistory = conversationHistory.slice(-20);
+  if (t.match(/y\s*t[uú]|y\s*a\s*t[ií]|c[oó]mo est[aá]s tu/)) {
+    return 'Como IA no tengo emociones, pero me importa mucho lo que sientes. 💙 ¿Cómo está tu día?';
+  }
+  if (t.match(/^(hola|hey|hi)/)) {
+    return '¡Hola! 👋 Soy Mentali, tu psicólogo virtual. ¿Cómo te sientes hoy?';
+  }
+  if (t.includes('triste')) {
+    return 'Siento que estés pasando por esto. 💙 ¿Qué ha despertado esta tristeza?';
+  }
+  if (t.includes('ansioso') || t.includes('ansiedad')) {
+    return 'La ansiedad puede ser abrumadora. 💙 ¿Qué la está causando?';
+  }
+  if (t.match(/no\s*s[eé]/)) {
+    return 'Está bien, a veces es difícil saber. 🌿 ¿Cómo ha sido tu día?';
+  }
+  if (t.match(/suicidar|matarme|morir/)) {
+    return '🆘 Tu vida importa. Llama: España 024, México 800-290-0024, Argentina 135. 💙';
   }
   
-  return response;
+  return 'Te escucho con atención. 💙 ¿Podrías contarme más?';
 }
 
 // =====================================================
