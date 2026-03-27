@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // =====================================================
-// IA PSICÓLOGO REAL - API Backend con z-ai-sdk
+// IA PSICÓLOGO REAL - Backend con z-ai-sdk (GRATIS)
 // =====================================================
 
 interface Message {
@@ -17,18 +17,27 @@ interface Message {
 
 let conversationHistory: Message[] = [];
 
-// Función para llamar a la API con IA real
+// URL del backend con IA real
+const API_URL = 'https://mentali-backend.onrender.com/chat';
+
+// Función para llamar a la IA REAL
 async function getAIResponse(userMessage: string): Promise<string> {
   conversationHistory.push({ role: 'user', content: userMessage });
   
   try {
-    const response = await fetch('/api/chat', {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         messages: conversationHistory.slice(-10) 
       }),
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) throw new Error('API error');
     

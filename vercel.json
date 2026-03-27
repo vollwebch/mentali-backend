@@ -1,11 +1,5 @@
 {
   "buildCommand": "npm install && npx expo export --platform web",
   "outputDirectory": "dist",
-  "framework": null,
-  "functions": {
-    "api/chat.ts": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  }
+  "framework": null
 }
