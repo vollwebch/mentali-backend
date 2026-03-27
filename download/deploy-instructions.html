@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentali App - Instrucciones de Despliegue</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #8B5CF6; }
+        h2 { color: #EC4899; margin-top: 30px; }
+        code { background: #f4f4f4; padding: 2px 8px; border-radius: 4px; }
+        pre { background: #1a1a1a; color: #fff; padding: 20px; border-radius: 8px; overflow-x: auto; }
+        .step { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #8B5CF6; }
+        .url { font-size: 18px; color: #8B5CF6; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🧠 Mentali App - Instrucciones de Despliegue</h1>
+
+    <p>La app está lista para desplegar. El código fuente está en GitHub:</p>
+    <p class="url">https://github.com/vollwebch/mentali-app</p>
+
+    <h2>Opción 1: Netlify (Recomendado)</h2>
+    <div class="step">
+        <p><strong>Paso 1:</strong> Ve a <a href="https://app.netlify.com" target="_blank">netlify.com</a> y crea una cuenta gratis</p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 2:</strong> Haz clic en "Add new site" → "Import an existing project"</p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 3:</strong> Conecta tu GitHub y selecciona el repositorio <code>vollwebch/mentali-app</code></p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 4:</strong> Configura el build:</p>
+        <pre>
+Build command: npm install && npx expo export --platform web
+Publish directory: dist
+        </pre>
+    </div>
+    <div class="step">
+        <p><strong>Paso 5:</strong> Haz clic en "Deploy site" y espera 2-3 minutos</p>
+    </div>
+
+    <h2>Opción 2: Vercel</h2>
+    <div class="step">
+        <p><strong>Paso 1:</strong> Ve a <a href="https://vercel.com" target="_blank">vercel.com</a> y crea una cuenta</p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 2:</strong> Haz clic en "Add New" → "Project"</p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 3:</strong> Importa el repositorio <code>vollwebch/mentali-app</code></p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 4:</strong> Vercel detectará automáticamente la configuración del vercel.json</p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 5:</strong> Desactiva "Deployment Protection" en Settings → Deployment Protection</p>
+    </div>
+
+    <h2>Opción 3: GitHub Pages</h2>
+    <div class="step">
+        <p><strong>Paso 1:</strong> Ve a Settings del repositorio en GitHub</p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 2:</strong> En "Pages", selecciona "GitHub Actions" como source</p>
+    </div>
+    <div class="step">
+        <p><strong>Paso 3:</strong> Crea un workflow que ejecute:</p>
+        <pre>
+npm install
+npx expo export --platform web
+        </pre>
+    </div>
+
+    <h2>🚀 Características de la App</h2>
+    <ul>
+        <li>✅ IA Psicólogo con respuestas inteligentes</li>
+        <li>✅ Reconoce 20+ emociones diferentes</li>
+        <li>✅ Respuestas contextuales</li>
+        <li>✅ Detección de crisis con teléfonos de ayuda</li>
+        <li>✅ Dark mode automático</li>
+        <li>✅ Mapa emocional</li>
+        <li>✅ Sistema de premios</li>
+    </ul>
+</body>
+</html>

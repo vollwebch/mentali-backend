@@ -1,0 +1,16 @@
+{
+  "name": "Mentali",
+  "short_name": "Mentali",
+  "description": "Tu psicólogo virtual con IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
