@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // =====================================================
-// IA PSICÓLOGO REAL - z-ai-web-dev-sdk (GRATUITA)
+// IA PSICÓLOGO REAL - API Backend con z-ai-sdk
 // =====================================================
 
 interface Message {
@@ -17,75 +17,56 @@ interface Message {
 
 let conversationHistory: Message[] = [];
 
-// Sistema de prompt para la IA
-const SYSTEM_PROMPT = `Eres Mentali, un psicólogo virtual cálido y profesional.
-
-REGLAS IMPORTANTES:
-1. Si preguntan "¿y tú?", "y tu?", "¿y a ti?" - responde que como IA no tienes emociones pero estás para escucharles.
-2. NUNCA digas "¡Me alegra!" cuando te pregunten cómo estás - es incorrecto.
-3. Siempre valida la emoción del usuario ANTES de dar consejos.
-4. Responde en español, sé empático, máximo 60 palabras.
-5. Si detectas crisis (suicidio, autolesión), da estos números:
-   España: 024, México: 800-290-0024, Argentina: 135, Colombia: 106
-
-Sé natural, cálido y profesional. No uses listas, habla naturalmente.`;
-
-// Función para llamar a la IA REAL
+// Función para llamar a la API con IA real
 async function getAIResponse(userMessage: string): Promise<string> {
   conversationHistory.push({ role: 'user', content: userMessage });
   
   try {
-    // @ts-ignore
-    const ZAI = (await import('z-ai-web-dev-sdk')).default;
-    const zai = await ZAI.create();
-    
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...conversationHistory.slice(-10).map(m => ({
-        role: m.role,
-        content: m.content
-      }))
-    ];
-    
-    const completion = await zai.chat.completions.create({
-      messages,
-      thinking: { type: 'disabled' }
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        messages: conversationHistory.slice(-10) 
+      }),
     });
     
-    const response = completion.choices?.[0]?.message?.content || 
-      'Lo siento, no pude procesar eso. ¿Podrías repetir?';
+    if (!response.ok) throw new Error('API error');
     
-    conversationHistory.push({ role: 'assistant', content: response });
-    return response;
+    const data = await response.json();
+    const aiResponse = data.response || 'Lo siento, intenta de nuevo.';
+    
+    conversationHistory.push({ role: 'assistant', content: aiResponse });
+    return aiResponse;
     
   } catch (error: any) {
     console.log('Error IA:', error.message);
     
-    // Fallback inteligente si la IA falla
+    // Fallback inteligente
     const fallback = getFallbackResponse(userMessage);
     conversationHistory.push({ role: 'assistant', content: fallback });
     return fallback;
   }
 }
 
-// Fallback cuando la IA no está disponible
+// Fallback cuando la API no está disponible
 function getFallbackResponse(message: string): string {
   const t = message.toLowerCase().trim();
+  const lastBot = conversationHistory.filter(m => m.role === 'assistant').pop()?.content || '';
   
   if (t.match(/y\s*t[uú]|y\s*a\s*t[ií]|c[oó]mo est[aá]s tu/)) {
-    return 'Como IA no tengo emociones, pero me importa mucho lo que sientes. 💙 ¿Cómo está tu día?';
+    return 'Como psicólogo virtual no tengo emociones propias, pero me importa mucho lo que sientes. 💙 ¿Cómo está tu día?';
   }
-  if (t.match(/^(hola|hey|hi)/)) {
-    return '¡Hola! 👋 Soy Mentali, tu psicólogo virtual. ¿Cómo te sientes hoy?';
+  if (t.match(/^(hola|hey|hi|hello)/)) {
+    return '¡Hola! 👋 Soy Mentali, tu psicólogo virtual. Estoy aquí para escucharte. ¿Cómo te sientes hoy?';
   }
   if (t.includes('triste')) {
-    return 'Siento que estés pasando por esto. 💙 ¿Qué ha despertado esta tristeza?';
+    return 'Siento que estés pasando por esto. 💙 ¿Qué ha despertado estos sentimientos?';
   }
   if (t.includes('ansioso') || t.includes('ansiedad')) {
-    return 'La ansiedad puede ser abrumadora. 💙 ¿Qué la está causando?';
+    return 'La ansiedad puede sentirse abrumadora. 💙 ¿Qué la está causando?';
   }
   if (t.match(/no\s*s[eé]/)) {
-    return 'Está bien, a veces es difícil saber. 🌿 ¿Cómo ha sido tu día?';
+    return 'Está bien. 🌿 A veces es difícil encontrar las palabras. ¿Cómo ha sido tu día?';
   }
   if (t.match(/suicidar|matarme|morir/)) {
     return '🆘 Tu vida importa. Llama: España 024, México 800-290-0024, Argentina 135. 💙';
