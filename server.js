@@ -2,7 +2,7 @@ const express = require('express');
 const https = require('https');
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 

@@ -1,12 +1,12 @@
 {
   "name": "mentali-backend",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "z-ai-web-dev-sdk": "^0.0.17"
+    "express": "^4.22.1"
   },
   "engines": {
     "node": ">=18.0.0"
